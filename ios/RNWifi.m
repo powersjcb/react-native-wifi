@@ -1,5 +1,8 @@
 #import "RNWifi.h"
+#if TARGET_IPHONE_SIMULATOR
+#else
 #import <NetworkExtension/NetworkExtension.h>
+#endif
 #import <SystemConfiguration/CaptiveNetwork.h>
 // If using official settings URL
 //#import <UIKit/UIKit.h>
@@ -16,7 +19,9 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_METHOD(connectToSSID:(NSString*)ssid
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+#if TARGET_IPHONE_SIMULATOR
+    reject(@"ios_error", @"Not supported in simulator", nil);
+#else    
     if (@available(iOS 11.0, *)) {
         NEHotspotConfiguration* configuration = [[NEHotspotConfiguration alloc] initWithSSID:ssid];
         configuration.joinOnce = true;
@@ -32,6 +37,7 @@ RCT_EXPORT_METHOD(connectToSSID:(NSString*)ssid
     } else {
         reject(@"ios_error", @"Not supported in iOS<11.0", nil);
     }
+#endif  
 }
 
 RCT_EXPORT_METHOD(connectToProtectedSSID:(NSString*)ssid
@@ -39,7 +45,9 @@ RCT_EXPORT_METHOD(connectToProtectedSSID:(NSString*)ssid
                   isWEP:(BOOL)isWEP
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+#if TARGET_IPHONE_SIMULATOR
+    reject(@"ios_error", @"Not supported in simulator", nil);
+#else     
     if (@available(iOS 11.0, *)) {
         NEHotspotConfiguration* configuration = [[NEHotspotConfiguration alloc] initWithSSID:ssid passphrase:passphrase isWEP:isWEP];
         configuration.joinOnce = true;
@@ -55,12 +63,15 @@ RCT_EXPORT_METHOD(connectToProtectedSSID:(NSString*)ssid
     } else {
         reject(@"ios_error", @"Not supported in iOS<11.0", nil);
     }
+#endif
 }
 
 RCT_EXPORT_METHOD(disconnectFromSSID:(NSString*)ssid
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+#if TARGET_IPHONE_SIMULATOR
+    reject(@"ios_error", @"Not supported in simulator", nil);
+#else     
     if (@available(iOS 11.0, *)) {
         [[NEHotspotConfigurationManager sharedManager] getConfiguredSSIDsWithCompletionHandler:^(NSArray<NSString *> *ssids) {
             if (ssids != nil && [ssids indexOfObject:ssid] != NSNotFound) {
@@ -71,7 +82,7 @@ RCT_EXPORT_METHOD(disconnectFromSSID:(NSString*)ssid
     } else {
         reject(@"ios_error", @"Not supported in iOS<11.0", nil);
     }
-    
+#endif    
 }
 
 RCT_REMAP_METHOD(getCurrentWifiSSID,
